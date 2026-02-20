@@ -125,10 +125,10 @@ class RawDataHandler:
             print(f"Failed to save raw JSON data: {e}")
 
 
-def main():
+def main(destination_folder: Path | str = "data/raw"):
     locations = load_config().locations
     raw_data_handler = RawDataHandler(
-        locations=locations, destination_folder="data/raw"
+        locations=locations, destination_folder=destination_folder
     )
     raw_data = raw_data_handler.fetch_raw_data()
     raw_data_handler.save_raw_data(raw_data)
