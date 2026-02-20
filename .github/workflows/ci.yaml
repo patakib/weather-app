@@ -1,0 +1,24 @@
+name: CI pipeline
+
+on: [push, pull_request]
+
+jobs:
+  run-all-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Sync dependencies
+        # This creates the virtualenv and installs everything in pyproject.toml
+        run: uv sync
+
+      - name: Run tests
+        # Runs pytest within the uv-managed environment
+        run: uv run pytest

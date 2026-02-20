@@ -32,7 +32,7 @@ repos = [
     {
       id = "tests",
       name = "Run tests",
-      entry = "uv run pytest -vv",
+      entry = "uv run pytest --cache-clear -vv",
       language = "system",
       pass_filenames = false,
       stages = ["pre-commit"]
