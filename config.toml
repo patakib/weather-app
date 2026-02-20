@@ -1,0 +1,24 @@
+[[locations]]
+city = "Wien"
+latitude = 48.2085
+longitude = 16.3721
+
+[[locations]]
+city = "Sopron"
+latitude = 47.685
+longitude = 16.5905
+
+[[locations]]
+city = "Ravazd"
+latitude = 47.5142
+longitude = 17.7535
+
+[[locations]]
+city = "Budapest"
+latitude = 47.4984
+longitude = 19.0404
+
+[[locations]]
+city = "Balatonalmádi"
+latitude = 47.0353
+longitude = 18.0208
