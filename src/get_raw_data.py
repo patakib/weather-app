@@ -85,7 +85,7 @@ class UrlBuilder:
         return latitude_string, longitude_string
 
     def build_url(self):
-        return f"{self.base_url}{self.latitude_string}&{self.longitude_string}&daily={self.daily_forecast_parameters}&hourly={self.hourly_forecast_parameters}&forecast_days={self.forecast_days}"
+        return f"{self.base_url}{self.latitude_string}&{self.longitude_string}&daily={self.daily_forecast_parameters}&hourly={self.hourly_forecast_parameters}&forecast_days={self.forecast_days}&timezone=auto"
 
 
 class RawDataHandler:
@@ -101,7 +101,7 @@ class RawDataHandler:
         current_date = datetime.now().strftime("%Y-%m-%d")
         return f"raw_{current_date}.json"
 
-    def fetch_raw_data(self) -> dict:
+    def fetch_raw_data(self) -> list[dict]:
         url = self.url_builder.build_url()
         data = {}
         try:
@@ -114,7 +114,13 @@ class RawDataHandler:
             print(f"Failed to parse JSON: {e}")
         return data
 
-    def save_raw_data(self, data: dict):
+    def enrich_raw_data(self, data: list[dict]) -> list[dict]:
+        """Add city information to the raw data for better traceability"""
+        for i in range(len(data)):
+            data[i]["city"] = self.locations[i].city
+        return data
+
+    def save_raw_data(self, data: list):
         try:
             filename = self._generate_filename_with_date()
             file_path = self.destination_folder / filename
@@ -131,7 +137,8 @@ def main(destination_folder: Path | str = "data/raw"):
         locations=locations, destination_folder=destination_folder
     )
     raw_data = raw_data_handler.fetch_raw_data()
-    raw_data_handler.save_raw_data(raw_data)
+    raw_data_enriched = raw_data_handler.enrich_raw_data(raw_data)
+    raw_data_handler.save_raw_data(raw_data_enriched)
 
 
 if __name__ == "__main__":
