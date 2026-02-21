@@ -13,6 +13,8 @@ attrs==25.4.0
     #   referencing
 babel==2.18.0
     # via agate
+blinker==1.9.0
+    # via flask
 certifi==2026.1.4
     # via requests
 charset-normalizer==3.4.4
@@ -21,10 +23,13 @@ click==8.3.1
     # via
     #   dbt-core
     #   dbt-semantic-interfaces
+    #   flask
 colorama==0.4.6
     # via dbt-common
 daff==1.4.2
     # via dbt-core
+dash==4.0.0
+    # via weather (pyproject.toml)
 dbt-adapters==1.22.6
     # via
     #   dbt-core
@@ -53,6 +58,8 @@ duckdb==1.4.4
     # via
     #   weather (pyproject.toml)
     #   dbt-duckdb
+flask==3.1.3
+    # via dash
 geoarrow-c==0.3.1
     # via geoarrow-pyarrow
 geoarrow-pyarrow==0.2.0
@@ -62,18 +69,23 @@ geoarrow-types==0.3.0
 idna==3.11
     # via requests
 importlib-metadata==8.7.1
-    # via dbt-semantic-interfaces
+    # via
+    #   dash
+    #   dbt-semantic-interfaces
 iniconfig==2.3.0
     # via pytest
 isodate==0.7.2
     # via
     #   agate
     #   dbt-common
+itsdangerous==2.2.0
+    # via flask
 jinja2==3.1.6
     # via
     #   dbt-common
     #   dbt-core
     #   dbt-semantic-interfaces
+    #   flask
 jsonschema==4.26.0
     # via
     #   dbt-common
@@ -84,7 +96,10 @@ jsonschema-specifications==2025.9.1
 leather==0.4.1
     # via agate
 markupsafe==3.0.3
-    # via jinja2
+    # via
+    #   flask
+    #   jinja2
+    #   werkzeug
 mashumaro==3.14
     # via
     #   dbt-adapters
@@ -94,20 +109,33 @@ more-itertools==10.8.0
     # via dbt-semantic-interfaces
 msgpack==1.1.2
     # via mashumaro
+narwhals==2.16.0
+    # via plotly
+nest-asyncio==1.6.0
+    # via dash
 networkx==3.6.1
     # via dbt-core
+numpy==2.4.2
+    # via pandas
 orderly-set==5.5.0
     # via deepdiff
 packaging==26.0
     # via
     #   dbt-core
+    #   plotly
     #   pytest
+pandas==3.0.1
+    # via weather (pyproject.toml)
 parsedatetime==2.6
     # via agate
 pathspec==0.12.1
     # via
     #   dbt-common
     #   dbt-core
+plotly==6.5.2
+    # via
+    #   weather (pyproject.toml)
+    #   dash
 pluggy==1.6.0
     # via pytest
 polars==1.38.1
@@ -142,6 +170,7 @@ python-dateutil==2.9.0.post0
     # via
     #   dbt-common
     #   dbt-semantic-interfaces
+    #   pandas
 python-dotenv==1.2.1
     # via pydantic-settings
 python-slugify==8.0.4
@@ -163,13 +192,18 @@ referencing==0.37.0
 requests==2.32.5
     # via
     #   weather (pyproject.toml)
+    #   dash
     #   dbt-common
     #   dbt-core
     #   snowplow-tracker
+retrying==1.4.2
+    # via dash
 rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
+setuptools==82.0.0
+    # via dash
 six==1.17.0
     # via python-dateutil
 snowplow-tracker==1.1.0
@@ -180,6 +214,7 @@ text-unidecode==1.3
     # via python-slugify
 typing-extensions==4.15.0
     # via
+    #   dash
     #   dbt-adapters
     #   dbt-common
     #   dbt-core
@@ -195,5 +230,9 @@ typing-inspection==0.4.2
     #   pydantic-settings
 urllib3==2.6.3
     # via requests
+werkzeug==3.1.6
+    # via
+    #   dash
+    #   flask
 zipp==3.23.0
     # via importlib-metadata
