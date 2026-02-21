@@ -1,6 +1,6 @@
 name: CI pipeline
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   run-all-tests:
