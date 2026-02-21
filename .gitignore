@@ -9,5 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
+# data
+data
+
 # test data
 test_data
