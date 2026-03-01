@@ -111,11 +111,12 @@ def create_polars_dataframes_from_json(
             hourly_raw_schema,
             hourly_final_schema,
         )
-        # add city information to the DataFrame
+        # additional information to the DataFrame
         hourly_pldf = hourly_pldf.with_columns(
             pl.lit(data[i]["latitude"]).alias("latitude"),
             pl.lit(data[i]["longitude"]).alias("longitude"),
             pl.lit(data[i]["city"]).alias("city"),
+            pl.lit(datetime.now()).alias("log_time"),
         )
 
         # append table to list
@@ -127,11 +128,12 @@ def create_polars_dataframes_from_json(
             daily_raw_schema,
             daily_final_schema,
         )
-        # add city information to the DataFrame
+        # additional information to the DataFrame
         daily_pldf = daily_pldf.with_columns(
             pl.lit(data[i]["latitude"]).alias("latitude"),
             pl.lit(data[i]["longitude"]).alias("longitude"),
             pl.lit(data[i]["city"]).alias("city"),
+            pl.lit(datetime.now()).alias("log_time"),
         )
 
         # append table to list
