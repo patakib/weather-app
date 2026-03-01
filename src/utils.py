@@ -1,5 +1,9 @@
 """Utility functions for the data pipeline"""
 
+import json
+from typing import Type
+from datetime import datetime, date
+import requests
 from abc import ABC, abstractmethod
 from pathlib import Path
 import tomllib
@@ -104,4 +108,73 @@ class ForecastUrlBuilder(UrlBuilder):
         self.forecast_days = forecast_days
 
     def build_url(self):
-        return f"{self.base_url}/{self.api_version}/forecast?{self.latitude_string}&{self.longitude_string}&daily={self.daily_parameters}&hourly={self.hourly_parameters}&forecast_days={self.forecast_days}&timezone=auto"
+        return f"{self.base_url}/{self.api_version}/{self.path}?{self.latitude_string}&{self.longitude_string}&daily={self.daily_parameters}&hourly={self.hourly_parameters}&forecast_days={self.forecast_days}&timezone=auto"
+
+
+class HistoricalUrlBuilder(UrlBuilder):
+    """details of API url and methods to dynamically create it"""
+
+    def __init__(
+        self,
+        base_url: str = "https://archive-api.open-meteo.com",
+        path: str = "era5",
+        start_date: str = date(1960, 1, 1).strftime("%Y-%m-%d"),
+        end_date: str = date.today().strftime("%Y-%m-%d"),
+        **kwargs,
+    ):
+        super().__init__(base_url=base_url, **kwargs)
+        self.path = path
+        self.start_date = start_date
+        self.end_date = end_date
+
+    def build_url(self):
+        return f"{self.base_url}/{self.api_version}/{self.path}?{self.latitude_string}&{self.longitude_string}&daily={self.daily_parameters}&hourly={self.hourly_parameters}&start_date={self.start_date}&end_date={self.end_date}&timezone=auto"
+
+
+class RawDataHandler:
+    """Responsible for getting and sinking raw data as-is from API"""
+
+    def __init__(
+        self,
+        locations: list[Location],
+        url_builder_class: Type[UrlBuilder],
+        destination_folder: Path | str,
+        **builder_kwargs,
+    ):
+        self.locations = locations
+        self.url_builder = url_builder_class(**builder_kwargs, locations=locations)
+        self.destination_folder = Path(destination_folder)
+        self.destination_folder.mkdir(parents=True, exist_ok=True)
+
+    def _generate_filename_with_date(self) -> str:
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        return f"raw_{current_date}.json"
+
+    def fetch_raw_data(self) -> list[dict]:
+        url = self.url_builder.build_url()
+        data = {}
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"HTTP Request failed: {e}")
+        except json.JSONDecodeError as e:
+            print(f"Failed to parse JSON: {e}")
+        return data
+
+    def enrich_raw_data(self, data: list[dict]) -> list[dict]:
+        """Add city information to the raw data for better traceability"""
+        for i in range(len(data)):
+            data[i]["city"] = self.locations[i].city
+        return data
+
+    def save_raw_data(self, data: list):
+        try:
+            filename = self._generate_filename_with_date()
+            file_path = self.destination_folder / filename
+            with open(file_path, "w") as f:
+                json.dump(data, f, indent=4)
+            print(f"Raw data saved successfully to {file_path}")
+        except Exception as e:
+            print(f"Failed to save raw JSON data: {e}")
