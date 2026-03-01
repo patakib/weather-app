@@ -1,12 +1,12 @@
 from pathlib import Path
-from utils import load_config, ForecastUrlBuilder, RawDataHandler
+from utils import load_config, HistoricalUrlBuilder, RawDataHandler
 
 
-def main(destination_folder: Path | str = "data/raw"):
+def main(destination_folder: Path | str = "data/raw/historical"):
     locations = load_config().locations
     raw_data_handler = RawDataHandler(
         locations=locations,
-        url_builder_class=ForecastUrlBuilder,
+        url_builder_class=HistoricalUrlBuilder,
         destination_folder=destination_folder,
     )
     raw_data = raw_data_handler.fetch_raw_data()

@@ -2,7 +2,7 @@
 
 import pytest
 
-from get_raw_data import Location
+from utils import Location
 from pydantic import ValidationError
 
 

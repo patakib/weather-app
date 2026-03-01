@@ -30,6 +30,15 @@ repos = [
     },
 
     {
+      id = "clear cache",
+      name = "Clearing Prek cache",
+      entry = "uv run prek cache clean",
+      language = "system",
+      pass_filenames = false,
+      stages = ["pre-commit"],
+    },
+
+    {
       id = "tests",
       name = "Run tests",
       entry = "uv run pytest --cache-clear -vv",
