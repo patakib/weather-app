@@ -103,8 +103,8 @@ def incremental_load(con, data_folder: Path, lat_col="latitude", lon_col="longit
 
 if __name__ == "__main__":
     example_files = {
-        "daily_data": "data/validated/daily_data_2026-02-21.parquet",
-        "hourly_data": "data/validated/hourly_data_2026-02-21.parquet",
+        "daily_data": "data/validated/daily_data_2026-03-01.parquet",
+        "hourly_data": "data/validated/hourly_data_2026-03-01.parquet",
     }
 
     # Initialize DB
