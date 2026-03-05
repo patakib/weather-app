@@ -4,63 +4,13 @@ from pathlib import Path
 from datetime import datetime
 import json
 import polars as pl
-
-
-HOURLY_RAW_SCHEMA = {
-    "time": pl.Utf8(),
-    "temperature_2m": pl.Float64,
-    "precipitation": pl.Float64,
-    "precipitation_probability": pl.Int64,
-    "cloud_cover": pl.Int64,
-    "weather_code": pl.Int64,
-    "wind_speed_10m": pl.Float64,
-    "wind_direction_10m": pl.Int64,
-}
-HOURLY_FINAL_SCHEMA = {
-    "time": pl.Datetime("us"),
-    "temperature_2m": pl.Float64,
-    "precipitation": pl.Float64,
-    "precipitation_probability": pl.Int64,
-    "cloud_cover": pl.Int64,
-    "weather_code": pl.Int64,
-    "wind_speed_10m": pl.Float64,
-    "wind_direction_10m": pl.Int64,
-}
-
-DAILY_RAW_SCHEMA = {
-    "time": pl.Utf8(),
-    "temperature_2m_max": pl.Float64,
-    "temperature_2m_min": pl.Float64,
-    "sunrise": pl.Utf8(),
-    "sunset": pl.Utf8(),
-    "daylight_duration": pl.Float64,
-    "sunshine_duration": pl.Float64,
-    "uv_index_max": pl.Float64,
-    "precipitation_sum": pl.Float64,
-    "precipitation_hours": pl.Float64,
-    "snowfall_sum": pl.Float64,
-    "precipitation_probability_max": pl.Int64,
-    "wind_speed_10m_max": pl.Float64,
-    "wind_direction_10m_dominant": pl.Int64,
-    "wind_gusts_10m_max": pl.Float64,
-}
-DAILY_FINAL_SCHEMA = {
-    "time": pl.Date,
-    "temperature_2m_max": pl.Float64,
-    "temperature_2m_min": pl.Float64,
-    "sunrise": pl.Datetime("us"),
-    "sunset": pl.Datetime("us"),
-    "daylight_duration": pl.Float64,
-    "sunshine_duration": pl.Float64,
-    "uv_index_max": pl.Float64,
-    "precipitation_sum": pl.Float64,
-    "precipitation_hours": pl.Float64,
-    "snowfall_sum": pl.Float64,
-    "precipitation_probability_max": pl.Int64,
-    "wind_speed_10m_max": pl.Float64,
-    "wind_direction_10m_dominant": pl.Int64,
-    "wind_gusts_10m_max": pl.Float64,
-}
+from schemas import (
+    HOURLY_RAW_SCHEMA,
+    HOURLY_FINAL_SCHEMA,
+    DAILY_RAW_SCHEMA,
+    DAILY_FINAL_SCHEMA,
+)
+from rich.console import Console
 
 
 def read_json_data(filename: str | Path) -> list[dict]:
@@ -75,19 +25,37 @@ def read_json_data(filename: str | Path) -> list[dict]:
 
 
 def parse_data_dict_strict_to_polars(
+    city: str,
     data: dict,
     raw_schema: pl.Schema,
     final_schema: pl.Schema,
 ) -> pl.DataFrame:
     """Load hourly or daily data from a dictionary into a Polars DataFrame and enforce schema"""
+    console = Console()
+    df = None
     try:
-        df = pl.DataFrame(data, schema=raw_schema, strict=True)
+        df = pl.DataFrame(data)
+        df = raw_schema.validate(df)
+        console.print(
+            f"[bold green]✔ Success:[/bold green] Pandera validation passed for raw schema at {city}."
+        )
     except Exception as e:
+        console.print(
+            f"[bold red]✘ Error:[/bold red] Raw data does not match raw schema at {city}.",
+            style="white on red",
+        )
         raise ValueError(f"Raw schema validation failed: {e}")
 
     try:
-        df = df.cast(final_schema, strict=True)
+        df = final_schema.validate(df)
+        console.print(
+            f"[bold green]✔ Success:[/bold green] Pandera validation passed for final schema at {city}."
+        )
     except Exception as e:
+        console.print(
+            f"[bold red]✘ Error:[/bold red] Final data does not match final schema {city}.",
+            style="white on red",
+        )
         raise ValueError(f"Final schema validation failed: {e}")
 
     return df
@@ -107,6 +75,7 @@ def create_polars_dataframes_from_json(
     for i in range(len(data)):
         # hourly data
         hourly_pldf = parse_data_dict_strict_to_polars(
+            data[i]["city"],
             data[i]["hourly"],
             hourly_raw_schema,
             hourly_final_schema,
@@ -124,6 +93,7 @@ def create_polars_dataframes_from_json(
 
         # daily data
         daily_pldf = parse_data_dict_strict_to_polars(
+            data[i]["city"],
             data[i]["daily"],
             daily_raw_schema,
             daily_final_schema,
@@ -168,6 +138,7 @@ def save_polars_dataframes_to_parquet(
 
 def sanity_check_parquet_files(parquet_folder: str | Path) -> None:
     """Perform a sanity check on the generated Parquet files."""
+    console = Console()
     current_date = datetime.now().strftime("%Y-%m-%d")
     hourly_file = Path(parquet_folder) / f"hourly_data_{current_date}.parquet"
     daily_file = Path(parquet_folder) / f"daily_data_{current_date}.parquet"
@@ -180,7 +151,9 @@ def sanity_check_parquet_files(parquet_folder: str | Path) -> None:
 
     try:
         df = pl.read_parquet(hourly_file)
-        print(f"Successfully read hourly Parquet file: {hourly_file}")
+        console.print(
+            f"[bold green]✔ Success:[/bold green] Hourly parquet file read: {hourly_file}."
+        )
     except Exception as e:
         print(f"Error reading hourly Parquet file {hourly_file}: {e}")
     try:
@@ -192,7 +165,9 @@ def sanity_check_parquet_files(parquet_folder: str | Path) -> None:
 
     try:
         df = pl.read_parquet(daily_file)
-        print(f"Successfully read daily Parquet file: {daily_file}")
+        console.print(
+            f"[bold green]✔ Success:[/bold green] Hourly parquet file read: {daily_file}."
+        )
     except Exception as e:
         print(f"Error reading daily Parquet file {daily_file}: {e}")
     try:
@@ -201,7 +176,7 @@ def sanity_check_parquet_files(parquet_folder: str | Path) -> None:
         print(f"{df.head()}")
     except Exception as e:
         print(f"Error inspecting daily Parquet file {daily_file}: {e}")
-    print("Sanity check completed.")
+    console.print("[bold green]✔ Success:[/bold green] Sanity check completed.")
 
 
 def validate_and_load_json_to_parquet(
@@ -215,4 +190,6 @@ def validate_and_load_json_to_parquet(
 
 
 if __name__ == "__main__":
-    validate_and_load_json_to_parquet("data/raw/raw_2026-02-21.json", "data/validated")
+    validate_and_load_json_to_parquet(
+        "data/raw/historical/raw_2026-03-01.json", "data/validated/historical"
+    )
