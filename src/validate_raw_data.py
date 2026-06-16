@@ -13,15 +13,21 @@ from schemas import (
 from rich.console import Console
 
 
-def read_json_data(filename: str | Path) -> list[dict]:
+def read_json_data(directory: str | Path) -> list[dict]:
     """Read JSON data from a file and return it as a dictionary."""
-    data: list[dict] = []
-    try:
-        data = json.load(open(filename, "r"))
-        return data
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON from file {filename}: {e}")
-        raise
+    directory = Path(directory)
+    json_files = list(directory.glob("*.json"))
+    if len(json_files) != 1:
+        raise RuntimeError(f"Expected exactly one JSON file in {directory}, found {len(json_files)}")
+    else:
+        filename = json_files[0]
+        data: list[dict] = []
+        try:
+            data = json.load(open(filename, "r"))
+            return data
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON from file {filename}: {e}")
+            raise
 
 
 def parse_data_dict_strict_to_polars(
@@ -191,5 +197,8 @@ def validate_and_load_json_to_parquet(
 
 if __name__ == "__main__":
     validate_and_load_json_to_parquet(
-        "data/raw/historical/raw_2026-03-01.json", "data/validated/historical"
+        "data/raw/historical", "data/validated/historical"
+    )
+    validate_and_load_json_to_parquet(
+        "data/raw", "data/validated"
     )

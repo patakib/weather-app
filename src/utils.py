@@ -118,7 +118,7 @@ class HistoricalUrlBuilder(UrlBuilder):
         self,
         base_url: str = "https://archive-api.open-meteo.com",
         path: str = "era5",
-        start_date: str = date(1960, 1, 1).strftime("%Y-%m-%d"),
+        start_date: str = date(date.today().year, date.today().month, 1).strftime("%Y-%m-%d"),
         end_date: str = date.today().strftime("%Y-%m-%d"),
         **kwargs,
     ):
