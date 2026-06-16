@@ -19,7 +19,7 @@ HOURLY_RAW_SCHEMA = pa.DataFrameSchema(
             pl.Int64, pa.Check.in_range(0, 100), nullable=True
         ),
         "cloud_cover": pa.Column(pl.Int64, pa.Check.in_range(0, 100), nullable=True),
-        "weather_code": pa.Column(pl.Int64),
+        "weather_code": pa.Column(pl.Int64, nullable=True),
         "wind_speed_10m": pa.Column(
             pl.Float64, pa.Check.in_range(0, 150), nullable=True
         ),
@@ -43,7 +43,7 @@ HOURLY_FINAL_SCHEMA = pa.DataFrameSchema(
             pl.Int64, pa.Check.in_range(0, 100), nullable=True
         ),
         "cloud_cover": pa.Column(pl.Int64, pa.Check.in_range(0, 100), nullable=True),
-        "weather_code": pa.Column(pl.Int64),
+        "weather_code": pa.Column(pl.Int64, nullable=True),
         "wind_speed_10m": pa.Column(
             pl.Float64, pa.Check.in_range(0, 150), nullable=True
         ),

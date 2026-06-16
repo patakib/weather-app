@@ -4,9 +4,10 @@ from utils import load_config, HistoricalUrlBuilder, RawDataHandler
 
 def main(destination_folder: Path | str = "data/raw/historical"):
     locations = load_config().locations
+    historical_url_builder = HistoricalUrlBuilder
     raw_data_handler = RawDataHandler(
         locations=locations,
-        url_builder_class=HistoricalUrlBuilder,
+        url_builder_class=historical_url_builder,
         destination_folder=destination_folder,
     )
     raw_data = raw_data_handler.fetch_raw_data()
