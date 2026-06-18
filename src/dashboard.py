@@ -70,8 +70,8 @@ def update_daily_data(city):
     fig.add_trace(
         go.Scatter(
             x=df["time"],
-            y=df["temperature_2m_max"],
-            name="Max Temp",
+            y=df["temperature_2m_min"],
+            name="Min Temp",
             mode="lines",
         )
     )
@@ -79,8 +79,8 @@ def update_daily_data(city):
     fig.add_trace(
         go.Scatter(
             x=df["time"],
-            y=df["temperature_2m_min"],
-            name="Min Temp",
+            y=df["temperature_2m_max"],
+            name="Max Temp",
             mode="lines",
         )
     )
