@@ -108,7 +108,7 @@ def determine_if_validated_data_exists():
     actual_hourly_obj = Path(actual_hourly_data_file)
     
     for path in [actual_daily_obj, actual_hourly_obj]:
-        if path_obj.exists():
+        if path.exists():
             print(f"Current validated data file exist at {str(path)}.")
         else:
             print(f"The path does not exist at: {str(path)}.")
