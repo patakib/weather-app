@@ -183,7 +183,7 @@ def update_daily_data(city):
 
     return fig
 
-def main()
+def main():
     app.run(host="127.0.0.1", port=8050, debug=True)
 
 
