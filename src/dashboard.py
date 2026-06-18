@@ -118,6 +118,10 @@ def update_daily_data(city):
 
         fill_colors.append(colors)
 
+    # pre-calculate and pre-format DataFrame before creating the visualization
+    df['daylight_duration'] = (df['daylight_duration'] / 3600).round(2)
+    df['sunshine_duration'] = (df['sunshine_duration'] / 3600).round(2)
+
     table = go.Figure(
         data=[
             go.Table(
@@ -153,8 +157,8 @@ def update_daily_data(city):
                         df["snowfall_sum"],
                         df["sunrise"].dt.strftime("%H:%M"),
                         df["sunset"].dt.strftime("%H:%M"),
-                        df["daylight_duration"] / 3600,  # Convert seconds to hours
-                        df["sunshine_duration"] / 3600,  # Convert seconds to hours
+                        df["daylight_duration"],
+                        df["sunshine_duration"],
                         df["uv_index_max"],
                         df["wind_speed_10m_max"],
                         df["wind_direction_10m_dominant"],
