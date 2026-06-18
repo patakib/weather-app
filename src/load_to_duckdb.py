@@ -1,3 +1,4 @@
+from datetime import datetime
 import duckdb
 import polars as pl
 from pathlib import Path
@@ -100,15 +101,35 @@ def incremental_load(con, data_folder: Path, lat_col="latitude", lon_col="longit
         )
         print(f"Loaded {fname} into {table_name}")
 
+def determine_if_validated_data_exists():
+    actual_daily_data_file = f"data/validated/daily_data_{datetime.now().strftime('%Y-%m-%d')}.parquet"
+    actual_hourly_data_file = f"data/validated/hourly_data_{datetime.now().strftime('%Y-%m-%d')}.parquet"
+    actual_daily_obj = Path(actual_daily_data_file)
+    actual_hourly_obj = Path(actual_hourly_data_file)
+    
+    for path in [actual_daily_obj, actual_hourly_obj]:
+        if path_obj.exists():
+            print(f"Current validated data file exist at {str(path)}.")
+        else:
+            print(f"The path does not exist at: {str(path)}.")
+            print("Load to DuckDB cannot be completed.")
+            raise FileNotFoundError
+    return [actual_daily_data_file, actual_hourly_data_file]
 
-if __name__ == "__main__":
-    example_files = {
-        "daily_data": "data/validated/daily_data_2026-06-11.parquet",
-        "hourly_data": "data/validated/hourly_data_2026-06-11.parquet",
-    }
-
-    # Initialize DB
-    con = init_duckdb(DUCKDB_PATH, example_files)
-
+def main():
+    try:
+        current_daily_data_file, current_hourly_data_file = determine_if_validated_data_exists()
+        data = {
+                "daily_data": current_daily_data_file,
+                "hourly_data": current_hourly_data_file
+        }
+    except Exception as e:
+        print(f"Data pipeline aborted due to error: {e}")
+        raise
+    con = init_duckdb(DUCKDB_PATH, data)
     # Incrementally load all new files in folder
     incremental_load(con, PARQUET_FOLDER)
+
+if __name__ == "__main__":
+    main()
+

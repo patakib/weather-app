@@ -194,11 +194,11 @@ def validate_and_load_json_to_parquet(
     save_polars_dataframes_to_parquet(hourly_table, daily_table, parquet_folder)
     sanity_check_parquet_files(parquet_folder)
 
-
-if __name__ == "__main__":
-    validate_and_load_json_to_parquet(
-        "data/raw/historical", "data/validated/historical"
-    )
+def main():
     validate_and_load_json_to_parquet(
         "data/raw", "data/validated"
     )
+
+
+if __name__ == "__main__":
+    main()
