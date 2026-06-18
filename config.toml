@@ -7,6 +7,7 @@ longitude = 16.3721
 city = "Sopron"
 latitude = 47.685
 longitude = 16.5905
+default = true
 
 [[locations]]
 city = "Ravazd"
