@@ -1,6 +1,7 @@
 import duckdb
 from dash import Dash, dcc, html, Input, Output
 import plotly.graph_objects as go
+from utils import get_default_city_name
 
 # Connect to DuckDB
 DUCKDB_PATH = "data/warehouse/weather_dwh.duckdb"
@@ -16,6 +17,9 @@ cities = (
     .fetchdf()["city"]
     .tolist()
 )
+
+# get default city from config
+default_city = get_default_city_name()
 
 # Create Dash app
 app = Dash(__name__)
@@ -35,7 +39,7 @@ app.layout = html.Div(
         dcc.Dropdown(
             id="city-dropdown",
             options=[{"label": c, "value": c} for c in cities],
-            value="Sopron",
+            value=default_city if default_city is not None else "",
             clearable=False,
         ),
         dcc.Graph(id="weather-graph-daily"),

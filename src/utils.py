@@ -18,6 +18,7 @@ class Location(BaseModel):
     city: str
     latitude: float
     longitude: float
+    default: bool = False
 
     @field_validator("latitude")
     @classmethod
@@ -60,6 +61,13 @@ def load_config(filename: str | Path = "config.toml") -> Config:
             raise ValueError(f"Failed to parse TOML file: {e}")
         except Exception as e:
             raise ValueError(f"An error occurred while loading the configuration: {e}")
+
+def get_default_city_name() -> str:
+    config = load_config()
+    for location in config.locations:
+        if location.default:
+            return location.city
+    return None
 
 
 class UrlBuilder(ABC):
