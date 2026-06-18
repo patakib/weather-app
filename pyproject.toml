@@ -30,4 +30,13 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 
+[tool.uv]
+package = true
+
+[project.scripts]
+dashboard = "dashboard:main"
+pipeline = "pipeline:main"
+get-raw-data = "get_raw_data:main"
+validate-data = "validate_raw_data:main"
+load-to-duckdb = "load_to_duckdb:main"
 

@@ -1,8 +1,13 @@
+import logging
 from pathlib import Path
 from utils import load_config, ForecastUrlBuilder, RawDataHandler
 
 
 def main(destination_folder: Path | str = "data/raw"):
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - [GET RAW DATA] - %(name)s - %(message)s"
+    )
     locations = load_config().locations
     raw_data_handler = RawDataHandler(
         locations=locations,

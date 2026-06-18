@@ -1,5 +1,6 @@
 """Utility functions for the data pipeline"""
 
+import logging
 import json
 from typing import Type
 from datetime import datetime, date
@@ -9,6 +10,7 @@ from pathlib import Path
 import tomllib
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+logger = logging.getLogger(__name__)
 
 class Location(BaseModel):
     """Holds location data for a city"""
@@ -158,9 +160,9 @@ class RawDataHandler:
             response.raise_for_status()
             data = response.json()
         except requests.exceptions.RequestException as e:
-            print(f"HTTP Request failed: {e}")
+            logger.error(f"HTTP Request failed: {e}")
         except json.JSONDecodeError as e:
-            print(f"Failed to parse JSON: {e}")
+            logger.error(f"Failed to parse JSON: {e}")
         return data
 
     def enrich_raw_data(self, data: list[dict]) -> list[dict]:
@@ -175,6 +177,6 @@ class RawDataHandler:
             file_path = self.destination_folder / filename
             with open(file_path, "w") as f:
                 json.dump(data, f, indent=4)
-            print(f"Raw data saved successfully to {file_path}")
+            logger.info(f"Raw data saved successfully to {file_path}")
         except Exception as e:
-            print(f"Failed to save raw JSON data: {e}")
+            logger.error(f"Failed to save raw JSON data: {e}")
