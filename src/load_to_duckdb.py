@@ -38,7 +38,8 @@ def init_duckdb(db_path: str, example_files: dict):
         con.execute(f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
             {columns},
-            geom GEOMETRY
+            geom GEOMETRY,
+            load_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         );
         """)
 
@@ -92,7 +93,7 @@ def incremental_load(con, data_folder: Path, lat_col="latitude", lon_col="longit
         # Insert directly from Parquet
         con.execute(f"""
         INSERT INTO {table_name}
-        SELECT *, ST_Point("{lon_col}", "{lat_col}") AS geom
+        SELECT *, ST_Point("{lon_col}", "{lat_col}") AS geom, CURRENT_TIMESTAMP AS load_date
         FROM read_parquet('{file_path}')
         """)
 

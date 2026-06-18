@@ -22,6 +22,15 @@ app = Dash(__name__)
 
 app.layout = html.Div(
     [
+        html.H2([
+            "Data provided by Open-Meteo project: ",
+            html.A(
+                "open-meteo.com",
+                href="https://open-meteo.com",
+                target="_blank",
+                rel="noopener noreferrer"
+            )
+        ]),
         html.H3("Daily Weather"),
         dcc.Dropdown(
             id="city-dropdown",
@@ -57,9 +66,10 @@ def update_daily_data(city):
             uv_index_max,
             wind_speed_10m_max,
             wind_direction_10m_dominant,
-            wind_gusts_10m_max
+            wind_gusts_10m_max,
+            load_date
         FROM daily_data
-        WHERE city = ?
+        WHERE city = ? AND load_date = (SELECT MAX(load_date) FROM daily_data)
         ORDER BY time
     """,
         [city],
