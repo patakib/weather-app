@@ -16,7 +16,7 @@ from rich.console import Console
 def read_json_data(directory: str | Path) -> list[dict]:
     """Read JSON data from a file and return it as a dictionary."""
     directory = Path(directory)
-    json_files = list(directory.glob("*.json"))
+    json_files = list(directory.glob(f"*{datetime.now().strftime('%Y-%m-%d')}.json"))
     if len(json_files) != 1:
         raise RuntimeError(f"Expected exactly one JSON file in {directory}, found {len(json_files)}")
     else:
