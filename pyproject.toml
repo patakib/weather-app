@@ -34,6 +34,8 @@ pythonpath = ["src"]
 package = true
 
 [project.scripts]
+pipeline = "pipeline:main"
 get-raw-data = "get_raw_data:main"
 validate-data = "validate_raw_data:main"
 load-to-duckdb = "load_to_duckdb:main"
+

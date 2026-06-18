@@ -1,8 +1,10 @@
+import logging
 from datetime import datetime
 import duckdb
 import polars as pl
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
 
 DUCKDB_PATH = "data/warehouse/weather_dwh.duckdb"
 PARQUET_FOLDER = Path("data/validated")
@@ -99,7 +101,7 @@ def incremental_load(con, data_folder: Path, lat_col="latitude", lon_col="longit
             "INSERT INTO _loaded_files (table_name, file_name) VALUES (?, ?)",
             [table_name, fname],
         )
-        print(f"Loaded {fname} into {table_name}")
+        logger.info(f"Loaded {fname} into {table_name}")
 
 def determine_if_validated_data_exists():
     actual_daily_data_file = f"data/validated/daily_data_{datetime.now().strftime('%Y-%m-%d')}.parquet"
@@ -109,14 +111,18 @@ def determine_if_validated_data_exists():
     
     for path in [actual_daily_obj, actual_hourly_obj]:
         if path.exists():
-            print(f"Current validated data file exist at {str(path)}.")
+            logger.info(f"Current validated data file exist at {str(path)}.")
         else:
-            print(f"The path does not exist at: {str(path)}.")
-            print("Load to DuckDB cannot be completed.")
+            logger.error(f"The path does not exist at: {str(path)}.")
+            logger.error("Load to DuckDB cannot be completed.")
             raise FileNotFoundError
     return [actual_daily_data_file, actual_hourly_data_file]
 
 def main():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - [LOAD VALIDATED DATA TO DUCKDB] - %(name)s - %(message)s"
+    )
     try:
         current_daily_data_file, current_hourly_data_file = determine_if_validated_data_exists()
         data = {
@@ -124,7 +130,7 @@ def main():
                 "hourly_data": current_hourly_data_file
         }
     except Exception as e:
-        print(f"Data pipeline aborted due to error: {e}")
+        logger.error(f"Data pipeline aborted due to error: {e}")
         raise
     con = init_duckdb(DUCKDB_PATH, data)
     # Incrementally load all new files in folder

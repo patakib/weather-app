@@ -1,5 +1,6 @@
 """Validating raw JSON files and loading them into Parquet"""
 
+import logging
 from pathlib import Path
 from datetime import datetime
 import json
@@ -12,6 +13,7 @@ from schemas import (
 )
 from rich.console import Console
 
+logger = logging.getLogger(__name__)
 
 def read_json_data(directory: str | Path) -> list[dict]:
     """Read JSON data from a file and return it as a dictionary."""
@@ -26,7 +28,7 @@ def read_json_data(directory: str | Path) -> list[dict]:
             data = json.load(open(filename, "r"))
             return data
         except json.JSONDecodeError as e:
-            print(f"Error decoding JSON from file {filename}: {e}")
+            logger.error(f"Error decoding JSON from file {filename}: {e}")
             raise
 
 
@@ -150,10 +152,10 @@ def sanity_check_parquet_files(parquet_folder: str | Path) -> None:
     daily_file = Path(parquet_folder) / f"daily_data_{current_date}.parquet"
 
     if not hourly_file:
-        print("No hourly Parquet files found for today.")
+        logger.error("No hourly Parquet files found for today.")
 
     if not daily_file:
-        print("No daily Parquet files found for today.")
+        logger.error("No daily Parquet files found for today.")
 
     try:
         df = pl.read_parquet(hourly_file)
@@ -161,13 +163,13 @@ def sanity_check_parquet_files(parquet_folder: str | Path) -> None:
             f"[bold green]✔ Success:[/bold green] Hourly parquet file read: {hourly_file}."
         )
     except Exception as e:
-        print(f"Error reading hourly Parquet file {hourly_file}: {e}")
+        logger.error(f"Error reading hourly Parquet file {hourly_file}: {e}")
     try:
-        print(f"Schema of hourly Parquet file {hourly_file}: {df.schema}")
-        print(f"{df.shape[0]} rows, {df.shape[1]} columns")
-        print(f"{df.head()}")
+        logger.info(f"Schema of hourly Parquet file {hourly_file}: {df.schema}")
+        logger.info(f"{df.shape[0]} rows, {df.shape[1]} columns")
+        logger.info(f"{df.head()}")
     except Exception as e:
-        print(f"Error inspecting hourly Parquet file {hourly_file}: {e}")
+        logger.error(f"Error inspecting hourly Parquet file {hourly_file}: {e}")
 
     try:
         df = pl.read_parquet(daily_file)
@@ -175,13 +177,13 @@ def sanity_check_parquet_files(parquet_folder: str | Path) -> None:
             f"[bold green]✔ Success:[/bold green] Hourly parquet file read: {daily_file}."
         )
     except Exception as e:
-        print(f"Error reading daily Parquet file {daily_file}: {e}")
+        logger.error(f"Error reading daily Parquet file {daily_file}: {e}")
     try:
-        print(f"Schema of daily Parquet file {daily_file}: {df.schema}")
-        print(f"{df.shape[0]} rows, {df.shape[1]} columns")
-        print(f"{df.head()}")
+        logger.info(f"Schema of daily Parquet file {daily_file}: {df.schema}")
+        logger.info(f"{df.shape[0]} rows, {df.shape[1]} columns")
+        logger.info(f"{df.head()}")
     except Exception as e:
-        print(f"Error inspecting daily Parquet file {daily_file}: {e}")
+        logger.error(f"Error inspecting daily Parquet file {daily_file}: {e}")
     console.print("[bold green]✔ Success:[/bold green] Sanity check completed.")
 
 
@@ -195,6 +197,10 @@ def validate_and_load_json_to_parquet(
     sanity_check_parquet_files(parquet_folder)
 
 def main():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - [VALIDATE RAW DATA] - %(name)s - %(message)s"
+    )
     validate_and_load_json_to_parquet(
         "data/raw", "data/validated"
     )
